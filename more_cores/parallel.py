@@ -1,5 +1,6 @@
 import itertools
 import math
+import os
 import time
 from functools import wraps
 
@@ -34,8 +35,9 @@ def parallel_for(cores, dynamic=False, recursive=False):
                         func, args_set[chunk_size * i:chunk_size * (i + 1)]
                     ), f)
                 cores.connect(i)
-                cores.send_file(data_file, data_file)
-                cmd = 'nohup bash run_job {0} {1} {2} > nohup_{1}.out &'.format(
+                cores.send_file(data_file, 'data_{}.pkl'.format(i))
+                os.remove(data_file)
+                cmd = 'nohup bash run_job {0} {1} {2}'.format(
                     cores.requirements['python'], i, sd['cores']
                 )
                 print('Sending', cmd)
@@ -48,7 +50,7 @@ def parallel_for(cores, dynamic=False, recursive=False):
                 cores.disconnect()
             # Wait for all jobs to complete
             remaining = list(range(num_servers))
-            return_data = [None] * num_servers
+            return_data = [None] * len(args_set)
             while len(remaining) > 0:
                 for r in list(remaining):
                     time.sleep(DELAY_TIME)
@@ -58,8 +60,11 @@ def parallel_for(cores, dynamic=False, recursive=False):
                     if cores.is_job_complete():
                         remaining.remove(r)
                         # Get function return values
-                        # TODO
-                        pass
+                        results_file = 'results_{}.pkl'.format(r)
+                        cores.get_file(results_file, results_file)
+                        with open(results_file, 'rb') as f:
+                            for i, result in enumerate(dill.load(f)):
+                                return_data[chunk_size * r + i] = result
                     cores.disconnect()
             return return_data
 

@@ -2,7 +2,7 @@
 
 # This script launces in nohup mode and produces a file when complete
 # Example usage:
-# nohup run_job 2 4 &
+# nohup run_job 3.7.3 2 4 &
 
 # Set up pyenv
 export PYENV_ROOT="$HOME/.pyenv"

@@ -58,6 +58,11 @@ class Cores:
             dst = CORES_DIR + dst
         self.sftp.put(src, dst)
 
+    def get_file(self, src, dst, temp_dir=True):
+        if temp_dir:
+            src = CORES_DIR + src
+        self.sftp.get(src, dst)
+
     def send_command(self, cmd, temp_dir=True):
         if temp_dir:
             cmd = 'cd {}; {}'.format(CORES_DIR, cmd)
