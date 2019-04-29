@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Example usage: ./setup_pyenv.sh 3.7.3 requirements.txt
+# Example usage:
+# setup_pyenv.sh 3.7.3 requirements.txt
 
 
 # Setup pyenv if not installed
@@ -32,9 +33,10 @@ else
 fi
 
 # Install python packages
-python3 --version
+python --version
 pip install -r $2
 
-rm -rf .morecores
-mkdir .morecores
-cd .morecores
+# TODO: move this to python sftp
+rm -rf .more_cores
+mkdir .more_cores
+cd .more_cores

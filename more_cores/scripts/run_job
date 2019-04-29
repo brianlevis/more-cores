@@ -1,1 +1,17 @@
 #!/bin/bash
+
+# This script launces in nohup mode and produces a file when complete
+# Example usage:
+# nohup run_job 2 4 &
+
+# Set up pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$HOME/.pyenv/bin:$PATH"
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+pyenv global $1
+
+# Run the python function and indicate completion
+python run_job.py $2 $3
+touch indicator_$2
