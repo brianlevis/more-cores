@@ -1,7 +1,7 @@
 import os
 import sys
 
-from paramiko import SSHClient
+import paramiko
 
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(__file__), 'scripts') + '/'
@@ -24,7 +24,8 @@ class Cores:
             print('Initializing environment... this may take a few minutes')
         self.server_dicts = server_dicts
         self.requirements = requirements
-        self.ssh = SSHClient()
+        self.ssh = paramiko.SSHClient()
+        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.ssh.load_system_host_keys()
         self.sftp = None
         self.active_server = None
@@ -93,7 +94,7 @@ class Cores:
         self.sftp.close()
 
 
-def make_server_dict(host, user, password=None, pkey=None, cores=1, dfs=None):
+def make_server_dict(host, user, password=None, pkey=None, cores=4, dfs=0):
     return {
         'host': host,
         'username': user,
