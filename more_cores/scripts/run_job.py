@@ -8,7 +8,7 @@ id_number, num_cores = sys.argv[1:3]
 with open('data_{}.pkl'.format(id_number), 'rb') as fp:
     func, args_set = dill.load(fp)
 
-pool = ProcessPool(nodes=num_cores)
+pool = ProcessPool(nodes=int(num_cores))
 results = list(pool.imap(func, *zip(*args_set)))
 
 # results = [

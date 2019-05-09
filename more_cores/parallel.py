@@ -1,5 +1,4 @@
 import itertools
-import math
 import os
 import pickle
 import time
@@ -57,13 +56,14 @@ def parallel_for(cores, dynamic=False):
             # Divide args among cores
             num_servers = len(cores.server_dicts)
             chunk_size = int(len(args_set) / num_servers)
+            bytes_sent = 0
+            bytes_received = 0
             # Create a package of the function and args for each core
-            print('Distributing jobs')
             for i, sd in enumerate(cores.server_dicts):
                 timer.start('distribution')
                 data_file = '_more_cores_{}.pkl'.format(i)
                 with open(data_file, 'wb') as f:
-                    print(chunk_size * (i + 1) - chunk_size * i)
+                    # print(chunk_size * (i + 1) - chunk_size * i)
                     obj = (
                         func, args_set[chunk_size * i:chunk_size * (i + 1)]
                     )
@@ -73,6 +73,7 @@ def parallel_for(cores, dynamic=False):
                     dill.dump(obj, f, recurse=True)
                 cores.connect(i)
                 cores.send_file(data_file, 'data_{}.pkl'.format(i))
+                bytes_sent += os.path.getsize(data_file)
                 os.remove(data_file)
                 # cmd = 'nohup bash run_job {0} {1} {2}'.format(
                 cmd = 'nohup bash run_job {0} {1} {2} > nohup_{1}.out &'.format(
@@ -80,7 +81,6 @@ def parallel_for(cores, dynamic=False):
                 )
                 print('Sending', cmd)
                 ssh_stdin, ssh_stdout, ssh_stderr = cores.send_command(cmd)
-                print('Sent')
                 for line in ssh_stdout.readlines():
                     print(line)
                 for line in ssh_stderr.readlines():
@@ -107,11 +107,14 @@ def parallel_for(cores, dynamic=False):
                         with open(results_file, 'rb') as f:
                             for i, result in enumerate(pickle.load(f)):
                                 return_data[chunk_size * r + i] = result
+                        bytes_received += os.path.getsize(results_file)
+                        os.remove(results_file)
                         timer.record()
                         timer.start('run_and_check')
                     cores.disconnect()
             timer.record()
             print(timer)
+            print('bytes sent:', bytes_sent, 'bytes received:', bytes_received)
             return return_data
 
         return run_jobs

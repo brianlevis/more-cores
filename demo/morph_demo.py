@@ -15,11 +15,16 @@ from more_cores import *
 
 num_frames = int(sys.argv[1])
 num_servers = int(sys.argv[2])
+num_cores = 4 if len(sys.argv) < 4 else int(sys.argv[3])
+print('==================================')
+print(num_frames, num_servers, num_cores)
+print('==================================')
 
-available_hives = [3, 4, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24][:num_servers]
+# Check hivemind.eecs.berkeley.edu to see which machines are currently online
+available_hives = [2, 3, 18, 19, 20, 24][:num_servers]
 hive = Cores(
     [
-        make_server_dict('hive{}.cs.berkeley.edu'.format(i), 'cs199-dlq', dfs=0, cores=4) for i in available_hives
+        make_server_dict('hive{}.cs.berkeley.edu'.format(i), 'cs199-dlq', dfs=0, cores=num_cores) for i in available_hives
     ],
     make_requirements(['matplotlib', 'scipy', 'numpy'])
 )

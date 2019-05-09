@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 import os
 import pickle
+import sys
 from functools import partial
 from multiprocessing.pool import Pool
 from time import time
@@ -11,6 +12,9 @@ import numpy as np
 from matplotlib.path import Path
 from scipy import interpolate
 from scipy.spatial import Delaunay
+
+
+num_frames = int(sys.argv[1])
 
 
 def process_image_n(num_images, image_0, image_1,
@@ -142,7 +146,7 @@ def morph(image_name_0, image_name_1, num_images, image_range):
     func_args = partial(process_image_n, num_images, image_0, image_1,
                         points_0, point_change,
                         triangulation_indices, triangulation_0, triangulation_1)
-    with Pool(3) as p:
+    with Pool(1) as p:
         frames = p.map(func_args, range(image_range[0], image_range[1] + 1))
     print('Time:', (time() - ts) / 60)
     return frames
@@ -162,4 +166,4 @@ def process_images(image_name_0, image_name_1, num_frames, num_points=None, imag
 
 
 if __name__ == '__main__':
-    process_images('blue_animated', 'plushie', 3)
+    process_images('blue_animated', 'plushie', num_frames)
