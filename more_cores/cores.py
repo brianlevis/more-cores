@@ -10,6 +10,7 @@ CORES_DIR = '.more_cores/'
 SETUP_SCRIPT = 'setup_pyenv'
 RUN_SCRIPT = 'run_job'
 RUN_SCRIPT_PY = 'run_job.py'
+REQUIREMENTS = 'mc_requirements.txt'
 
 
 class Job:
@@ -36,10 +37,13 @@ class Cores:
                 continue
             if dfs is not None:
                 initialized_dfs.add(dfs)
+            with open(SCRIPTS_DIR + REQUIREMENTS, 'w') as fp:
+                fp.write('\n'.join(requirements['requirements']))
             self.connect(i)
             self.send_file(SCRIPTS_DIR + SETUP_SCRIPT, SETUP_SCRIPT, temp_dir=False)
+            self.send_file(SCRIPTS_DIR + REQUIREMENTS, REQUIREMENTS, temp_dir=False)
             cmd_str = 'bash {} {} {}'.format(
-                SETUP_SCRIPT, requirements['python'], 'requirements.txt'
+                SETUP_SCRIPT, requirements['python'], REQUIREMENTS
             )
             ssh_stdin, ssh_stdout, ssh_stderr = self.send_command(cmd_str, temp_dir=False)
             if not quiet:
@@ -48,6 +52,7 @@ class Cores:
                 for line in ssh_stderr.readlines():
                     print(line)
             self.sftp.remove(SETUP_SCRIPT)
+            self.sftp.remove(REQUIREMENTS)
             self.send_file(SCRIPTS_DIR + RUN_SCRIPT, CORES_DIR + RUN_SCRIPT, temp_dir=False)
             self.send_file(SCRIPTS_DIR + RUN_SCRIPT_PY, CORES_DIR + RUN_SCRIPT_PY, temp_dir=False)
             self.disconnect()

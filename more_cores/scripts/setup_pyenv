@@ -34,6 +34,7 @@ fi
 
 # Install python packages
 python --version
+pip install dill pathos
 pip install -r $2
 
 # TODO: move this to python sftp
